@@ -2,25 +2,27 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Sample SAM Template for hollein
 
+# NOTE: Schedule might had better locate globals
 Globals:
   Function:
     Timeout: 5
 
 Resources:
-  GitHubContributionCrawler:
+  GitHubContributionCrawler: # LambdaFunctionName
     Type: AWS::Serverless::Function
     Properties:
       Handler: main
       CodeUri: ../../main.zip
       FunctionName: github-contribution-crawler
+      Policies: AmazonDynamoDBFullAccess
       Runtime: go1.x
       Tracing: Active
-      Events:
-        ScheduleEvent:
-          Type: Schedule
-          Properties:
-            Schedule: cron(0 12 * * ? *)
       Environment:
         Variables:
           ENV: ''
           GITHUB_ACCESS_TOKEN:
+      Events:
+        ScheduleEvent: # EventName
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 12 * * ? *)

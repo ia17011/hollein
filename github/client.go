@@ -15,6 +15,7 @@ func New() GitHubClient {
 // TODO: design Response
 type TodaysContributionResponse string
 
+// TODO: write function
 func (gc *GitHubClient) GetTodaysContributions() TodaysContributionResponse {	
 	return "contribution nums"
 }
