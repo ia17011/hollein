@@ -14,6 +14,6 @@ func Config(region, endpoint string) *aws.Config {
 		}
 	}
 	return &aws.Config{
-		Region: aws.String(region)
+		Region: aws.String(region),
 	}
 }
