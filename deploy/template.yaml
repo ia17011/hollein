@@ -7,19 +7,20 @@ Globals:
     Timeout: 5
 
 Resources:
-  HelloWorldFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  GitHubContributionCrawler:
+    Type: AWS::Serverless::Function
     Properties:
       Handler: main
       CodeUri: ../../main.zip
-      FunctionName: daily-github-contribution
+      FunctionName: github-contribution-crawler
       Runtime: go1.x
-      Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
+      Tracing: Active
       Events:
         ScheduleEvent:
           Type: Schedule
           Properties:
             Schedule: cron(0 12 * * ? *)
-      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+      Environment:
         Variables:
-          PARAM1: VALUE
+          ENV: ''
+          GITHUB_ACCESS_TOKEN:

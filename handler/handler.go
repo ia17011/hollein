@@ -1,15 +1,21 @@
 package handler
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-sdk-go/aws/endpoints"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/guregu/dynamo"
+	localDynamoDB "github.com/ia17011/hollein/dynamodb"
+	"github.com/ia17011/hollein/github"
 )
 
 const (
+	region = endpoints.ApNortheast1RegionID
 	timeFormat         = "20060102150405"
 	dynamodbEndpoint = "http://dynamodb:8000"
 	s3Endpoint = "http://s3:9000"
@@ -21,27 +27,13 @@ var (
 	ErrNon200Response = errors.New("Non 200 Response found")
 )
 
-func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	resp, err := http.Get(DefaultHTTPGetAddress)
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
+func Handler(ctx context.Context, event events.CloudWatchEvent) (string, error) {
+	dynamoDB := dynamodb.New(session.New(), localDynamoDB.Config(region, dynamodbEndpoint))	
+	db := dynamo.NewFromIface(dynamoDB)
+	fmt.Println(db)
 
-	if resp.StatusCode != 200 {
-		return events.APIGatewayProxyResponse{}, ErrNon200Response
-	}
+	githubClient := github.New()
+	contributions := githubClient.GetTodaysContributions()
 
-	ip, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
-
-	if len(ip) == 0 {
-		return events.APIGatewayProxyResponse{}, ErrNoIP
-	}
-
-	return events.APIGatewayProxyResponse{
-		Body:       fmt.Sprintf("Hello, %v", string(ip)),
-		StatusCode: 200,
-	}, nil
+	return "success", nil
 }
