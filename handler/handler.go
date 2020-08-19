@@ -34,6 +34,7 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) (string, error) 
 
 	githubClient := github.New()
 	contributions := githubClient.GetTodaysContributions()
+	fmt.Println(contributions)
 
 	return "success", nil
 }
