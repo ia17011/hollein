@@ -16,5 +16,7 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 .env
+.env.json
 
-go-mod-test
+.aws-sam/
+samconfig.toml

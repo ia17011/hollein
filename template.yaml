@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: hollein SAM is for portzamparc
+
+Globals:
+  Function:
+    Timeout: 5
+
+Resources:
+  GitHubContributionCrawler: # LambdaFunctionName
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main
+      FunctionName: github-contribution-crawler
+      Policies: AmazonDynamoDBFullAccess
+      Runtime: go1.x
+      Tracing: Active
+      Environment: # env variables on Lambda
+        Variables:
+          ENV: ''
+          AWS_ACCESS_KEY: ''
+          AWS_SECRET_KEY: ''
+          AWS_SERVICE_ACCOUNT_KEY: ''
+          AWS_SERVICE_BUCKET: ''
+          GITHUB_ACCESS_TOKEN: ''
+
+      Events:
+        ScheduleEvent:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 12 * * ? *) # https://amzn.to/3kUY2jj
+
+  DataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: DataTable
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
