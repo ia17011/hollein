@@ -17,17 +17,13 @@ Resources:
       Tracing: Active
       Environment: # env variables on Lambda
         Variables:
-          ENV: ''
-          AWS_ACCESS_KEY: ''
-          AWS_SECRET_KEY: ''
-          AWS_SERVICE_ACCOUNT_KEY: ''
-          AWS_SERVICE_BUCKET: ''
           GITHUB_ACCESS_TOKEN: ''
 
       Events:
         ScheduleEvent:
           Type: Schedule
           Properties:
+            # Every 12:00 pm
             Schedule: cron(0 12 * * ? *) # https://amzn.to/3kUY2jj
 
   DataTable:
@@ -40,3 +36,8 @@ Resources:
       KeySchema:
         - AttributeName: userId
           KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
