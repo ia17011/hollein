@@ -5,7 +5,6 @@ import (
 	"github.com/ia17011/hollein/handler"
 )
 
-
 func main() {
 	lambda.Start(handler.Handler)
 }
