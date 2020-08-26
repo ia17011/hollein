@@ -2,11 +2,16 @@ package handler
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-xray-sdk-go/xray"
+	"github.com/guregu/dynamo"
+	localDynamoDB "github.com/ia17011/hollein/dynamodb"
 	"github.com/ia17011/hollein/github"
 )
 
@@ -15,21 +20,24 @@ const (
 	timeFormat         = "20060102150405"
 	dynamodbEndpoint = "http://dynamodb:8000"
 	s3Endpoint = "http://s3:9000"
-)
-
-var (
-	DefaultHTTPGetAddress = "https://checkip.amazonaws.com"
-	ErrNoIP = errors.New("No IP in HTTP response")
-	ErrNon200Response = errors.New("Non 200 Response found")
+	githubTableName = "GitHubContributions"
 )
 
 func Handler(ctx context.Context, event events.CloudWatchEvent) (string, error) {
-	// dynamoDB := dynamodb.New(session.New(), localDynamoDB.Config(region, dynamodbEndpoint))	
-	// _ := dynamo.NewFromIface(dynamoDB)
+	xray.Configure(xray.Config{LogLevel: "trace"})
 
+	dynamoDB := dynamodb.New(session.New(), localDynamoDB.Config(region, dynamodbEndpoint))	
+	db := dynamo.NewFromIface(dynamoDB)
+
+	// fetch GitHub Today's Contribution
 	githubClient := github.New()
-	contlib := githubClient.GetTodaysContributions()
-	fmt.Println(contlib)
+	contributionCount, err := githubClient.GetTodaysContributions("ia17011")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(db)	
+	fmt.Println(contributionCount)
 
 	return "success", nil
 }
