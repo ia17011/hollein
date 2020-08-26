@@ -7,10 +7,6 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/guregu/dynamo"
-	localDynamoDB "github.com/ia17011/hollein/dynamodb"
 	"github.com/ia17011/hollein/github"
 )
 
@@ -28,13 +24,12 @@ var (
 )
 
 func Handler(ctx context.Context, event events.CloudWatchEvent) (string, error) {
-	dynamoDB := dynamodb.New(session.New(), localDynamoDB.Config(region, dynamodbEndpoint))	
-	db := dynamo.NewFromIface(dynamoDB)
-	fmt.Println(db)
+	// dynamoDB := dynamodb.New(session.New(), localDynamoDB.Config(region, dynamodbEndpoint))	
+	// _ := dynamo.NewFromIface(dynamoDB)
 
 	githubClient := github.New()
-	contributions := githubClient.GetTodaysContributions()
-	fmt.Println(contributions)
+	contlib := githubClient.GetTodaysContributions()
+	fmt.Println(contlib)
 
 	return "success", nil
 }
