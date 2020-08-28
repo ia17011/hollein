@@ -3,7 +3,6 @@ package github
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"time"
 
 	"github.com/google/go-github/v32/github"
@@ -27,23 +26,23 @@ func isValidEvent(event string, durationMinutes float64) bool {
 func (gc *GitHubClient) GetTodaysContributions(userName string) (int, error) {
 	events, _, err := gc.service.Activity.ListEventsPerformedByUser(context.Background(), userName, true, nil)
 	if _, ok := err.(*github.RateLimitError); ok {
-		log.Println("hit late limit")
+		return 0, errors.Wrapf(err, "hit late limit")
 	}
 
 	count := 0
 
 	for _, event := range events {
 		payload := event.GetRawPayload()
+		eventType := event.GetType()
 		eventDay := event.GetCreatedAt()
 		durationMinutes := time.Since(eventDay).Minutes()
 
-		if isValidEvent(event.GetType(), durationMinutes) != true {
+		if isValidEvent(eventType, durationMinutes) != true {
 			continue
 		}
 
 		var pushEventPayload PushEventPayload
-		err := json.Unmarshal([]byte(payload), &pushEventPayload)
-		if err != nil {
+		if err = json.Unmarshal([]byte(payload), &pushEventPayload); err != nil {
 			return 0, errors.Wrapf(err, "invalid event payload")
 		}
 

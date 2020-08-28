@@ -2,17 +2,16 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-xray-sdk-go/xray"
 	"github.com/guregu/dynamo"
 	localDynamoDB "github.com/ia17011/hollein/dynamodb"
 	"github.com/ia17011/hollein/github"
+	"github.com/ia17011/hollein/repository"
 )
 
 const (
@@ -20,24 +19,27 @@ const (
 	timeFormat         = "20060102150405"
 	dynamodbEndpoint = "http://dynamodb:8000"
 	s3Endpoint = "http://s3:9000"
-	githubTableName = "GitHubContributions"
+	tableName = "DataTable"
 )
 
 func Handler(ctx context.Context, event events.CloudWatchEvent) (string, error) {
-	xray.Configure(xray.Config{LogLevel: "trace"})
-
+	log.Println("EVENT: GitHubCrawler")
 	dynamoDB := dynamodb.New(session.New(), localDynamoDB.Config(region, dynamodbEndpoint))	
 	db := dynamo.NewFromIface(dynamoDB)
 
 	// fetch GitHub Today's Contribution
+	log.Println("Before: fetching contributionCount")
 	githubClient := github.New()
 	contributionCount, err := githubClient.GetTodaysContributions("ia17011")
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println("After: fetched contributionCount")
 
-	fmt.Println(db)	
-	fmt.Println(contributionCount)
+	log.Println("Before: save data to DynamoDB")
+	dataRepository := repository.Data{Table: db.Table(tableName)}
+	dataRepository.Save(contributionCount)
+	log.Println("After: saved data in DynamoDB")
 
 	return "success", nil
 }

@@ -24,17 +24,18 @@ Resources:
           Type: Schedule
           Properties:
             # Every 12:00 pm
-            Schedule: cron(0 12 * * ? *) # https://amzn.to/3kUY2jj
+            # Schedule: cron(0 12 * * ? *) # https://amzn.to/3kUY2jj
+            Schedule: cron(0/5 * * * ? *)
 
   DataTable:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: DataTable
       AttributeDefinitions:
-        - AttributeName: userId
+        - AttributeName: UserID
           AttributeType: S
       KeySchema:
-        - AttributeName: userId
+        - AttributeName: UserID
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 1
