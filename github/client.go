@@ -3,7 +3,6 @@ package github
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"time"
 
 	"github.com/google/go-github/v32/github"
@@ -34,36 +33,36 @@ func isValidEvent(event string, durationMinutes float64) bool {
 	return isValidEventType(contributionCountEvents, event) && minutesADay >= durationMinutes
 }
 
-func handlePushEvent(payload json.RawMessage) int {
+func handlePushEvent(payload json.RawMessage) (int, error) {
 	var pushEventPayload *github.PushEvent
 	if err := json.Unmarshal([]byte(payload), &pushEventPayload); err != nil {
-		log.Fatalf("invalid event payload")
+		return 0, err
 	}
-	return *pushEventPayload.Size
+	return *pushEventPayload.Size, nil
 }
 
-func handleIssuesEvent(payload json.RawMessage) int {
+func handleIssuesEvent(payload json.RawMessage) (int, error) {
 	var issuesEventPayload *github.IssuesEvent
 	if err := json.Unmarshal([]byte(payload), &issuesEventPayload); err != nil {
-		log.Fatalf("invalid event payload")
+		return 0, err
 	}
 	action := issuesEventPayload.GetAction()
 	if action == "opened" {
-		return 1
+		return 1, nil
 	}
-	return 0
+	return 0, nil
 }
 
-func handlePullRequestEvent(payload json.RawMessage) int {
+func handlePullRequestEvent(payload json.RawMessage) (int, error) {
 	var pullRequestEventPayload *github.PullRequestEvent
 	if err := json.Unmarshal([]byte(payload), &pullRequestEventPayload); err != nil {
-		log.Fatalf("invalid event payload")
+		return 0, err
 	}
 	action := pullRequestEventPayload.GetAction()
 	if action == "opened" {
-		return 1
+		return 1, nil
 	}
-	return 0
+	return 0, nil
 }
 
 func (gc *GitHubClient) GetTodaysContributions(userName string) (int, error) {
@@ -76,6 +75,9 @@ func (gc *GitHubClient) GetTodaysContributions(userName string) (int, error) {
 	count := 0
 
 	for _, event := range events {
+		var contributionNum int
+		var err error
+
 		payload := event.GetRawPayload()
 		eventType := event.GetType()
 		eventDay := event.GetCreatedAt()
@@ -87,12 +89,17 @@ func (gc *GitHubClient) GetTodaysContributions(userName string) (int, error) {
 
 		switch eventType {
 		case "PushEvent":
-			count += handlePushEvent(payload)
+			contributionNum, err = handlePushEvent(payload)
 		case "IssuesEvent":
-			count += handleIssuesEvent(payload)
+			contributionNum, err = handleIssuesEvent(payload)
 		case "PullRequestEvent":
-			count += handlePullRequestEvent(payload)
+			contributionNum, err = handlePullRequestEvent(payload)
+		default:
+			if err != nil {
+				return 0, errors.Wrapf(err, "invalid event payload")
+			}
 		}
+		count += contributionNum
 	}
 
 	return count, nil
