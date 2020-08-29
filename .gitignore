@@ -20,3 +20,6 @@
 
 .aws-sam/
 samconfig.toml
+
+# misc
+.github.samle.json
