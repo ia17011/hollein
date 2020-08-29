@@ -94,13 +94,18 @@ func (gc *GitHubClient) GetTodaysContributions(userName string) (int, error) {
 		switch eventType {
 		case "PushEvent":
 			contributionNum, err = getPushEventContribution(payload)
+			if err != nil {
+				return 0, errors.Wrapf(err, "invalid PushEvent payload")
+			}
 		case "IssuesEvent":
 			contributionNum, err = getIssuesEventContribution(payload)
+			if err != nil {
+				return 0, errors.Wrapf(err, "invalid IssuesEvent payload")
+			}
 		case "PullRequestEvent":
 			contributionNum, err = getPullRequestContribution(payload)
-		default:
 			if err != nil {
-				return 0, errors.Wrapf(err, "invalid event payload")
+				return 0, errors.Wrapf(err, "invalid PullRequestEvent payload")
 			}
 		}
 		count += contributionNum
