@@ -33,7 +33,8 @@ func isValidEvent(event string, durationMinutes float64) bool {
 	return isValidEventType(contributionCountEvents, event) && minutesADay >= durationMinutes
 }
 
-func handlePushEvent(payload json.RawMessage) (int, error) {
+// NOTE: count commit size
+func getPushEventContribution(payload json.RawMessage) (int, error) {
 	var pushEventPayload *github.PushEvent
 	if err := json.Unmarshal([]byte(payload), &pushEventPayload); err != nil {
 		return 0, err
@@ -41,7 +42,8 @@ func handlePushEvent(payload json.RawMessage) (int, error) {
 	return *pushEventPayload.Size, nil
 }
 
-func handleIssuesEvent(payload json.RawMessage) (int, error) {
+// NOTE: count when only opend
+func getIssuesEventContribution(payload json.RawMessage) (int, error) {
 	var issuesEventPayload *github.IssuesEvent
 	if err := json.Unmarshal([]byte(payload), &issuesEventPayload); err != nil {
 		return 0, err
@@ -53,7 +55,8 @@ func handleIssuesEvent(payload json.RawMessage) (int, error) {
 	return 0, nil
 }
 
-func handlePullRequestEvent(payload json.RawMessage) (int, error) {
+// NOTE: count when only opend
+func getPullRequestContribution(payload json.RawMessage) (int, error) {
 	var pullRequestEventPayload *github.PullRequestEvent
 	if err := json.Unmarshal([]byte(payload), &pullRequestEventPayload); err != nil {
 		return 0, err
@@ -83,17 +86,18 @@ func (gc *GitHubClient) GetTodaysContributions(userName string) (int, error) {
 		eventDay := event.GetCreatedAt()
 		durationMinutes := time.Since(eventDay).Minutes()
 
+		// log.Printf("eventDay: %v, durationMinutes: %f",eventDay, durationMinutes)
 		if isValidEvent(eventType, durationMinutes) != true {
 			continue
 		}
 
 		switch eventType {
 		case "PushEvent":
-			contributionNum, err = handlePushEvent(payload)
+			contributionNum, err = getPushEventContribution(payload)
 		case "IssuesEvent":
-			contributionNum, err = handleIssuesEvent(payload)
+			contributionNum, err = getIssuesEventContribution(payload)
 		case "PullRequestEvent":
-			contributionNum, err = handlePullRequestEvent(payload)
+			contributionNum, err = getPullRequestContribution(payload)
 		default:
 			if err != nil {
 				return 0, errors.Wrapf(err, "invalid event payload")
