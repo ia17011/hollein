@@ -13,6 +13,7 @@ type Data struct {
 	Table dynamo.Table
 }
 
+// NOTE: for test
 func RandomString(n int) string {
 	var letter = []rune("abcdfghijkmwxyzABCPQRSTWXYZ")
 
