@@ -29,11 +29,12 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) (string, error) 
 
 	// fetch GitHub Today's Contribution
 	log.Println("Before: fetching contributionCount")
-	githubClient := github.New()
-	contributionCount, err := githubClient.GetTodaysContributions("ia17011")
+	githubClient := github.New(nil)
+	contributionCount, err := githubClient.GetTodaysPublicContributions("ia17011")
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Printf("Fetched: %d Contribution", contributionCount)
 	log.Println("After: fetched contributionCount")
 
 	log.Println("Before: save data to DynamoDB")

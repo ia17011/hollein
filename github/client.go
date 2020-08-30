@@ -3,6 +3,7 @@ package github
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 	"time"
 
 	"github.com/google/go-github/v32/github"
@@ -13,8 +14,8 @@ type GitHubClient struct {
 	service *github.Client
 }
 
-func New() GitHubClient {
-	return GitHubClient{service: github.NewClient(nil)}
+func New(c *http.Client) GitHubClient {
+	return GitHubClient{service: github.NewClient(c)}
 }
 
 func isValidEventType(arr []string, str string) bool {
@@ -68,15 +69,8 @@ func getPullRequestContribution(payload json.RawMessage) (int, error) {
 	return 0, nil
 }
 
-func (gc *GitHubClient) GetTodaysContributions(userName string) (int, error) {
-	// TODO: add option to handle private contribution in the future
-	events, _, err := gc.service.Activity.ListEventsPerformedByUser(context.Background(), userName, true, nil)
-	if _, ok := err.(*github.RateLimitError); ok {
-		return 0, errors.Wrapf(err, "hit late limit")
-	}
-
+func getContributionNum(events []*github.Event) (int, error) {
 	count := 0
-
 	for _, event := range events {
 		var contributionNum int
 		var err error
@@ -114,18 +108,15 @@ func (gc *GitHubClient) GetTodaysContributions(userName string) (int, error) {
 	return count, nil
 }
 
-type Commit struct {
-	Sha    string `json:"sha"`
-	Author struct {
-		Email string `json:"email"`
-		Name  string `json:"name"`
-	} `json:"author"`
-	Message  string `json:"message"`
-	Distinct bool   `json:"distinct"`
-	Url      string `json:"url"`
-}
-
-type PullRequestEventPayload struct {
-	Action string `json:"action"`
-	Number int    `json:"number"`
+func (gc *GitHubClient) GetTodaysPublicContributions(userName string) (int, error) {
+	// TODO: add option to handle private contribution in the future
+	events, _, err := gc.service.Activity.ListEventsPerformedByUser(context.Background(), userName, true, nil)
+	if _, ok := err.(*github.RateLimitError); ok {
+		return 0, errors.Wrapf(err, "hit late limit")
+	}
+	count, err := getContributionNum(events)
+	if err != nil {
+		return 0, errors.Wrapf(err, "event handling error")
+	}
+	return count, nil
 }
