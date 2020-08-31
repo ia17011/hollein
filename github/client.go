@@ -69,7 +69,7 @@ func getPullRequestContribution(payload json.RawMessage) (int, error) {
 	return 0, nil
 }
 
-func getContributionNum(events []*github.Event) (int, error) {
+func getContributionCount(events []*github.Event) (int, error) {
 	count := 0
 	for _, event := range events {
 		var contributionNum int
@@ -89,17 +89,17 @@ func getContributionNum(events []*github.Event) (int, error) {
 		case "PushEvent":
 			contributionNum, err = getPushEventContribution(payload)
 			if err != nil {
-				return 0, errors.Wrapf(err, "invalid PushEvent payload")
+				return 0, err
 			}
 		case "IssuesEvent":
 			contributionNum, err = getIssuesEventContribution(payload)
 			if err != nil {
-				return 0, errors.Wrapf(err, "invalid IssuesEvent payload")
+				return 0, err
 			}
 		case "PullRequestEvent":
 			contributionNum, err = getPullRequestContribution(payload)
 			if err != nil {
-				return 0, errors.Wrapf(err, "invalid PullRequestEvent payload")
+				return 0, err
 			}
 		}
 		count += contributionNum
@@ -114,7 +114,7 @@ func (gc *GitHubClient) GetTodaysPublicContributions(userName string) (int, erro
 	if _, ok := err.(*github.RateLimitError); ok {
 		return 0, errors.Wrapf(err, "hit late limit")
 	}
-	count, err := getContributionNum(events)
+	count, err := getContributionCount(events)
 	if err != nil {
 		return 0, errors.Wrapf(err, "event handling error")
 	}

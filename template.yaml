@@ -25,7 +25,7 @@ Resources:
           Properties:
             # Every 12:00 pm
             # Schedule: cron(0 12 * * ? *) # https://amzn.to/3kUY2jj
-            Schedule: cron(0/30 * * * ? *)
+            Schedule: cron(59 11 * * ? *)
 
   DataTable:
     Type: AWS::DynamoDB::Table
