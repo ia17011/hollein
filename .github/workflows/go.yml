@@ -61,9 +61,23 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-1
 
-      - name: deploy
-        if: startsWith(github.ref, 'refs/heads/master')
-        run: S3_BUCKET=S3_BUCKET bash deploy.sh
-        shell: bash
+      - name: Create SAM Config
+        run: |
+          echo "version = 0.1" >> samconfig.toml
+          echo "[default]" >> samconfig.toml
+          echo "[default.deploy]" >> samconfig.toml
+          echo "[default.deploy.parameters]" >> samconfig.toml
+          echo "stack_name = \"$STACK_NAME\"" >> samconfig.toml
+          echo "s3_bucket = \"$S3_BUCKET\"" >> samconfig.toml
+          echo "s3_prefix = \"$STACK_NAME\"" >> samconfig.toml
+          echo "region = "ap-northeast-1"" >> samconfig.toml
+          echo "confirm_changeset = true" >> samconfig.toml
+          echo "capabilities = \"CAPABILITY_IAM\"" >> samconfig.toml
         env:
           S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          STACK_NAME: app
+
+      - name: Deploy SAM
+        if: startsWith(github.ref, 'refs/heads/master')
+        run: bash deploy.sh
+        shell: bash
