@@ -63,13 +63,7 @@ jobs:
 
       - name: deploy
         if: startsWith(github.ref, 'refs/heads/master')
-        run: |
-          sam build
-          sam deploy \
-              --template-file template.yaml \ 
-              --stack-name app \ 
-              --s3-bucket ${S3_BUCKET} \
-              --capabilities CAPABILITY_IAM \ 
-              --region ap-northeast-1
+        run: S3_BUCKET=S3_BUCKET bash deploy.sh
+        shell: bash
         env:
           S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
