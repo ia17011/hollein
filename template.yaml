@@ -21,7 +21,6 @@ Resources:
           Type: Schedule
           Properties:
             Schedule: cron(59 11 * * ? *)
-      CodeUri: s3://aws-sam-cli-managed-default-samclisourcebucket-z91ji4bohcp6/e4544991b086f237dea80a49d9a58a5e
   DataTable:
     Type: AWS::DynamoDB::Table
     Properties:
