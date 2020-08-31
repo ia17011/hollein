@@ -1,13 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: hollein SAM is for portzamparc
-
 Globals:
   Function:
     Timeout: 5
-
 Resources:
-  GitHubContributionCrawler: # LambdaFunctionName
+  GitHubContributionCrawler:
     Type: AWS::Serverless::Function
     Properties:
       Handler: main
@@ -15,18 +13,15 @@ Resources:
       Policies: AmazonDynamoDBFullAccess
       Runtime: go1.x
       Tracing: Active
-      Environment: # env variables on Lambda
+      Environment:
         Variables:
           GITHUB_ACCESS_TOKEN: ''
-
       Events:
         ScheduleEvent:
           Type: Schedule
           Properties:
-            # Every 12:00 pm
-            # Schedule: cron(0 12 * * ? *) # https://amzn.to/3kUY2jj
             Schedule: cron(59 11 * * ? *)
-
+      CodeUri: s3://aws-sam-cli-managed-default-samclisourcebucket-z91ji4bohcp6/e4544991b086f237dea80a49d9a58a5e
   DataTable:
     Type: AWS::DynamoDB::Table
     Properties:

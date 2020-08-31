@@ -81,3 +81,5 @@ jobs:
         if: startsWith(github.ref, 'refs/heads/master')
         run: bash deploy.sh
         shell: bash
+        env:
+          S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
