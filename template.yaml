@@ -21,8 +21,8 @@ Resources:
           Type: Schedule
           Properties:
             # 毎日11時59分 (59 11 * * ? *)
-            # 5分ごと (0/5 * * * ? *)　
-            Schedule: cron(0/5 * * * ? *)
+            # 5分ごと (*/5 * * * ? *)　
+            Schedule: cron(59 11 * * ? *)
   DataTable:
     Type: AWS::DynamoDB::Table
     Properties:

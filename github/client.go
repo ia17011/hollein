@@ -2,6 +2,7 @@ package github
 
 import (
 	"fmt"
+	"net/http"
 	"regexp"
 	"strconv"
 	"time"
@@ -26,6 +27,7 @@ func extractContributionCount(html string) int {
 	strContributionCount := re.FindStringSubmatch(sanitaizedHtml)[1]
 	contributionCount, _ := strconv.Atoi(strContributionCount)
 
+
 	return contributionCount
 }
 
@@ -41,7 +43,16 @@ func getTargetCloseHtml(doc *goquery.Document) (string, error) {
 func GetTodaysPublicContributions(userName string) (int, error) {
 	targetUrl := "https://github.com/" + userName
 
-	doc, err := goquery.NewDocument(targetUrl)
+	res, err := http.Get(targetUrl)
+	if err != nil {
+		return 0, errors.Wrapf(err, "cant get URL")
+	}
+	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		return 0, errors.Wrapf(err, "status code error: %d %s", res.StatusCode, res.Status)
+	}
+
+	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
 		return 0, errors.Wrapf(err, "cant fetch document")
 	}
