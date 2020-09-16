@@ -1,9 +1,11 @@
 package repository
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"log"
-	"time"
 	"math/rand"
+	"time"
 
 	"github.com/guregu/dynamo"
 	"github.com/ia17011/hollein/model"
@@ -25,11 +27,12 @@ func RandomString(n int) string {
 }
 
 // TODO: contributionCount:int -> data:obj
-func (d *Data) Save(contributionCount int) {
+func (d *Data) Save(userName string, contributionCount int) {
+	HashedUserName := md5.Sum([]byte(userName))
+
 	w := model.Data{
-		ID: rand.Intn(10000),
-		UserID: RandomString(rand.Intn(100)),
-		Name: RandomString(rand.Intn(100)),
+		UserID: hex.EncodeToString(HashedUserName[:]),
+		Name: userName,
 		GitHubTodaysContributionCount: contributionCount,
 		CreatedAt: time.Now(),
 	}
