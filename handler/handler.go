@@ -32,7 +32,7 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) (string, error) 
 	contributionCount, nil := github.GetTodaysPublicContributions(userName)
 
 	dataRepository := repository.Data{Table: db.Table(tableName)}
-	dataRepository.Save(contributionCount)
+	dataRepository.Save(userName, contributionCount)
 
 	return "success", nil
 }
