@@ -10,8 +10,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/guregu/dynamo"
 	localDynamoDB "github.com/ia17011/hollein/dynamodb"
-	github "github.com/ia17011/hollein/github"
 	"github.com/ia17011/hollein/repository"
+	"github.com/ia17011/hollein/services"
 )
 
 const (
@@ -29,7 +29,7 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) (string, error) 
 
 	// fetch GitHub Today's Contribution
 	userName := "ia17011"
-	contributionCount, nil := github.GetTodaysPublicContributions(userName)
+	contributionCount, nil := services.GetTodaysPublicContributions(userName)
 
 	dataRepository := repository.Data{Table: db.Table(tableName)}
 	dataRepository.Save(userName, contributionCount)
