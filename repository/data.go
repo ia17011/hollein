@@ -26,15 +26,15 @@ func RandomString(n int) string {
 	return string(b)
 }
 
-// TODO: contributionCount:int -> data:obj
 func (d *Data) Save(userName string, contributionCount int) {
 	HashedUserName := md5.Sum([]byte(userName))
 
+	// TODO: どんどんデータを増やしていく
 	w := model.Data{
 		UserID: hex.EncodeToString(HashedUserName[:]),
+		CreatedAt: time.Now().Unix(),
 		Name: userName,
 		GitHubTodaysContributionCount: contributionCount,
-		CreatedAt: time.Now(),
 	}
 	err := d.Table.Put(w).Run()
 	if err != nil {

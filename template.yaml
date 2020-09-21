@@ -26,13 +26,17 @@ Resources:
   DataTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: DataTable
+      TableName: Data
       AttributeDefinitions:
         - AttributeName: UserID
           AttributeType: S
+        - AttributeName: CreatedAt
+          AttributeType: N
       KeySchema:
         - AttributeName: UserID
           KeyType: HASH
+        - AttributeName: CreatedAt
+          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
