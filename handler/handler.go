@@ -10,8 +10,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/guregu/dynamo"
 	localDynamoDB "github.com/ia17011/hollein/dynamodb"
-	github "github.com/ia17011/hollein/github"
 	"github.com/ia17011/hollein/repository"
+	"github.com/ia17011/hollein/services"
 )
 
 const (
@@ -21,6 +21,11 @@ const (
 	s3Endpoint = "http://s3:9000"
 	tableName = "DataTable"
 )
+type Options struct {
+	userName string
+	contributionCount int
+	codingTime string
+}
 
 func Handler(ctx context.Context, event events.CloudWatchEvent) (string, error) {
 	log.Println("EVENT: GitHubCrawler")
@@ -29,10 +34,13 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) (string, error) 
 
 	// fetch GitHub Today's Contribution
 	userName := "ia17011"
-	contributionCount, nil := github.GetTodaysPublicContributions(userName)
+	contributionCount, nil := services.GetTodaysPublicContributions(userName)
+
+	// fetch wakatime
+	codingTime, nil := services.GetTodaysCodingTime()
 
 	dataRepository := repository.Data{Table: db.Table(tableName)}
-	dataRepository.Save(userName, contributionCount)
+	dataRepository.Save(userName,contributionCount, codingTime)
 
 	return "success", nil
 }
