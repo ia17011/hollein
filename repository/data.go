@@ -26,7 +26,6 @@ func (d *Data) Save(userName string, contributionCount int, codingTime string) {
 		Name: userName,
 		GitHubTodaysContributionCount: contributionCount,
 		CodingTime: codingTime,
-		CreatedAt: time.Now(),
 	}
 	err := d.Table.Put(w).Run()
 	if err != nil {
