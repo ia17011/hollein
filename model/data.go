@@ -5,5 +5,6 @@ type Data struct {
 	Name string `dynamo:"Name"`
 	GitHubTodaysContributionCount int `dynamo:"GitHubTodaysContributionCount"`
 	CreatedAt int64 `dynamo:"CreatedAt"` // unix timestamp
+	CodingTime string `dynamo:"CodingTime"`
 }
 

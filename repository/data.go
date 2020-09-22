@@ -15,7 +15,8 @@ type Data struct {
 }
 
 
-func (d *Data) Save(userName string, contributionCount int) {
+// TODO: contributionCount:int -> data:obj
+func (d *Data) Save(userName string, contributionCount int, codingTime string) {
 	HashedUserName := md5.Sum([]byte(userName))
 
 	// TODO: どんどんデータを増やしていく
@@ -24,6 +25,8 @@ func (d *Data) Save(userName string, contributionCount int) {
 		CreatedAt: time.Now().Unix(),
 		Name: userName,
 		GitHubTodaysContributionCount: contributionCount,
+		CodingTime: codingTime,
+		CreatedAt: time.Now(),
 	}
 	err := d.Table.Put(w).Run()
 	if err != nil {

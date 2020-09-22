@@ -21,6 +21,11 @@ const (
 	s3Endpoint = "http://s3:9000"
 	tableName = "DataTable"
 )
+type Options struct {
+	userName string
+	contributionCount int
+	codingTime string
+}
 
 func Handler(ctx context.Context, event events.CloudWatchEvent) (string, error) {
 	log.Println("EVENT: GitHubCrawler")
@@ -31,8 +36,11 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) (string, error) 
 	userName := "ia17011"
 	contributionCount, nil := services.GetTodaysPublicContributions(userName)
 
+	// fetch wakatime
+	codingTime, nil := services.GetTodaysCodingTime()
+
 	dataRepository := repository.Data{Table: db.Table(tableName)}
-	dataRepository.Save(userName, contributionCount)
+	dataRepository.Save(userName,contributionCount, codingTime)
 
 	return "success", nil
 }
